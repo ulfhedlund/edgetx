@@ -945,8 +945,8 @@
 #define TR_USE_EXTERNAL_ANTENNA         TR("Anv ext. antenn", "Använd extern antenn")
 #define TR_ANTENNACONFIRM2              TR("Kontr. antenn", "Kontrollera att antennen är installerad!")
 #define TR_MODULE_PROTOCOL_FLEX_WARN_LINE1        "Kräver inte"
-#define TR_MODULE_PROTOCOL_FCC_WARN_LINE1         "Kräver FCC"
-#define TR_MODULE_PROTOCOL_EU_WARN_LINE1          "Kräver EU"
+#define TR_MODULE_PROTOCOL_FCC_WARN_LINE1         "Kräver FCC-"
+#define TR_MODULE_PROTOCOL_EU_WARN_LINE1          "Kräver EU-"
 #define TR_MODULE_PROTOCOL_WARN_LINE2             "certifierad firmware"
 #define TR_LOWALARM                     "Lågalarm"
 #define TR_CRITICALALARM                "Kritiskt alarm"

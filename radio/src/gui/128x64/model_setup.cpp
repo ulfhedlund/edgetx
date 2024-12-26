@@ -24,6 +24,7 @@
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
+#include "hal/rgbleds.h"
 #include "switches.h"
 
 #if defined(USBJ_EX)
@@ -70,7 +71,30 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_TIMER3_PERSISTENT,
   ITEM_MODEL_SETUP_TIMER3_MINUTE_BEEP,
   ITEM_MODEL_SETUP_TIMER3_COUNTDOWN_BEEP,
-#if defined(FUNCTION_SWITCHES)
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  ITEM_MODEL_SETUP_LABEL,
+  ITEM_MODEL_SETUP_SW1,
+  ITEM_MODEL_SETUP_SW1_COLOR,
+  ITEM_MODEL_SETUP_SW2,
+  ITEM_MODEL_SETUP_SW2_COLOR,
+  ITEM_MODEL_SETUP_SW3,
+  ITEM_MODEL_SETUP_SW3_COLOR,
+  ITEM_MODEL_SETUP_SW4,
+  ITEM_MODEL_SETUP_SW4_COLOR,
+  ITEM_MODEL_SETUP_SW5,
+  ITEM_MODEL_SETUP_SW5_COLOR,
+  ITEM_MODEL_SETUP_SW6,
+  ITEM_MODEL_SETUP_SW6_COLOR,
+  ITEM_MODEL_SETUP_GROUP1_LABEL,
+  ITEM_MODEL_SETUP_GROUP1_ALWAYS_ON,
+  ITEM_MODEL_SETUP_GROUP1_START,
+  ITEM_MODEL_SETUP_GROUP2_LABEL,
+  ITEM_MODEL_SETUP_GROUP2_ALWAYS_ON,
+  ITEM_MODEL_SETUP_GROUP2_START,
+  ITEM_MODEL_SETUP_GROUP3_LABEL,
+  ITEM_MODEL_SETUP_GROUP3_ALWAYS_ON,
+  ITEM_MODEL_SETUP_GROUP3_START,
+#elif defined(FUNCTION_SWITCHES)
   ITEM_MODEL_SETUP_LABEL,
   ITEM_MODEL_SETUP_SW1,
   ITEM_MODEL_SETUP_SW2,
@@ -318,7 +342,9 @@ static uint8_t VIEWOPT_ROW(uint8_t value) { return expandState.viewOpt ? value :
 
 inline uint8_t MODULE_TYPE_ROWS(int moduleIdx)
 {
-  if (isModuleXJT(moduleIdx) || isModuleISRM(moduleIdx) || isModuleR9MNonAccess(moduleIdx) || isModuleDSM2(moduleIdx) || isModulePPM(moduleIdx))
+  if (isModuleXJT(moduleIdx) || isModuleISRM(moduleIdx) ||
+      isModuleR9MNonAccess(moduleIdx) || isModuleDSM2(moduleIdx) ||
+      isModuleSBUS(moduleIdx) || isModulePPM(moduleIdx))
     return 1;
   else
     return 0;
@@ -352,8 +378,31 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
 
 #define EXTRA_MODULE_ROWS
 
-#if defined(FUNCTION_SWITCHES)
-  #define FUNCTION_SWITCHES_ROWS        1,                       \
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  #define FUNCTION_SWITCHES_ROWS        0, \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
+                                        FS_ROW(1), \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
+                                        FS_ROW(1), \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
+                                        FS_ROW(1), \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
+                                        FS_ROW(1), \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
+                                        FS_ROW(1), \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
+                                        FS_ROW(1), \
+                                        FS_ROW(G1_ROW(LABEL())), \
+                                        FS_ROW(G1_ROW(0)),  \
+                                        FS_ROW(G1_ROW(0)),  \
+                                        FS_ROW(G2_ROW(LABEL())), \
+                                        FS_ROW(G2_ROW(0)),  \
+                                        FS_ROW(G2_ROW(0)),  \
+                                        FS_ROW(G3_ROW(LABEL())), \
+                                        FS_ROW(G3_ROW(0)),  \
+                                        FS_ROW(G3_ROW(0)),
+#elif defined(FUNCTION_SWITCHES)
+  #define FUNCTION_SWITCHES_ROWS        0, \
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
@@ -836,9 +885,19 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_SW5:
       case ITEM_MODEL_SETUP_SW6:
       {
-        int index = k - ITEM_MODEL_SETUP_SW1;
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+        int index = (k - ITEM_MODEL_SETUP_SW1) / 2;
+#else
+        int index = (k - ITEM_MODEL_SETUP_SW1);
+#endif
         lcdDrawSizedText(INDENT_WIDTH, y, STR_CHAR_SWITCH, 2, menuHorizontalPosition < 0 ? attr : 0);
-        lcdDrawText(lcdNextPos, y, switchGetName(index+switchGetMaxSwitches()), menuHorizontalPosition < 0 ? attr : 0);
+
+        // TODO: restore following line when switchGetName(index+switchGetMaxSwitches()) doesn't crash anymore
+        //lcdDrawText(lcdNextPos, y, switchGetName(index+switchGetMaxSwitches()), menuHorizontalPosition < 0 ? attr : 0);
+
+        // TODO : delete next 2 lines when switchGetName(index+switchGetMaxSwitches()) doesn't crash anymore
+        lcdDrawText(lcdNextPos, y, "SW", menuHorizontalPosition < 0 ? attr : 0);
+        lcdDrawChar(lcdNextPos, y, '1' + index, menuHorizontalPosition < 0 ? attr : 0);
 
         if (ZEXIST(g_model.switchNames[index]) || (attr && s_editMode > 0 && menuHorizontalPosition == 0))
           editName(35, y, g_model.switchNames[index], LEN_SWITCH_NAME, event, menuHorizontalPosition == 0 ? attr : 0, 0, old_editMode);
@@ -889,6 +948,39 @@ void menuModelSetup(event_t event)
         }
         break;
       }
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+      case ITEM_MODEL_SETUP_SW1_COLOR:
+      case ITEM_MODEL_SETUP_SW2_COLOR:
+      case ITEM_MODEL_SETUP_SW3_COLOR:
+      case ITEM_MODEL_SETUP_SW4_COLOR:
+      case ITEM_MODEL_SETUP_SW5_COLOR:
+      case ITEM_MODEL_SETUP_SW6_COLOR:
+      {
+        int index = (k - ITEM_MODEL_SETUP_SW1_COLOR) / 2;
+        uint8_t selectedColor = 0;
+
+        // ON
+        selectedColor = getRGBColorIndex(g_model.functionSwitchLedONColor[index].getColor());
+        selectedColor = editChoice(INDENT_WIDTH + getTextWidth(STR_FS_ON_COLOR) + 2, y, STR_FS_ON_COLOR, \
+          STR_FS_COLOR_LIST, selectedColor, 0, (sizeof(colorTable) / sizeof(colorTable[0])) - 1, menuHorizontalPosition == 0 ? attr : 0, event, INDENT_WIDTH);
+        if (attr && menuHorizontalPosition == 0 && checkIncDec_Ret) {
+          g_model.functionSwitchLedONColor[index].setColor(colorTable[selectedColor]);
+          storageDirty(EE_MODEL);
+        }
+
+        // OFF
+        selectedColor = getRGBColorIndex(g_model.functionSwitchLedOFFColor[index].getColor());
+        selectedColor = editChoice((30 + 5*FW) + getTextWidth(STR_FS_OFF_COLOR) + 2, y, STR_FS_OFF_COLOR, \
+          STR_FS_COLOR_LIST, selectedColor, 0, (sizeof(colorTable) / sizeof(colorTable[0])) - 1, menuHorizontalPosition == 1 ? attr : 0, event, 30 + 5*FW);
+        if (attr && menuHorizontalPosition == 1 && checkIncDec_Ret) {
+          g_model.functionSwitchLedOFFColor[index].setColor(colorTable[selectedColor]);
+          storageDirty(EE_MODEL);
+        }
+
+        break;
+      }
+#endif
 
       case ITEM_MODEL_SETUP_GROUP1_LABEL:
       case ITEM_MODEL_SETUP_GROUP2_LABEL:
@@ -1250,6 +1342,10 @@ void menuModelSetup(event_t event)
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_ISRM_RF_PROTOCOLS,
                              g_model.moduleData[INTERNAL_MODULE].subType,
                              menuHorizontalPosition == 1 ? attr : 0);
+        else if (isModuleSBUS(moduleIdx))
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_SBUS_PROTOCOLS,
+                             g_model.moduleData[moduleIdx].subType,
+                             menuHorizontalPosition == 1 ? attr : 0);
 #if defined(PPM)
         else if (isModulePPM(moduleIdx))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_PPM_PROTOCOLS,
@@ -1330,11 +1426,15 @@ void menuModelSetup(event_t event)
                   CHECK_INCDEC_MODELVAR(event,
                                         g_model.moduleData[moduleIdx].subType,
                                         DSM2_PROTO_LP45, DSM2_PROTO_DSMX);
+                } else if (isModuleSBUS(moduleIdx)) {
+                  CHECK_INCDEC_MODELVAR(event,
+                                        g_model.moduleData[moduleIdx].subType,
+                                        SBUS_PROTO_TLM_NONE, SBUS_PROTO_TLM_SPORT);
 #if defined(PPM)
                 } else if (isModulePPM(moduleIdx)) {
                   CHECK_INCDEC_MODELVAR(event,
                                         g_model.moduleData[moduleIdx].subType,
-                                        PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_MLINK);
+                                        PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_SPORT);
 #endif
                 } else if (isModuleR9MNonAccess(moduleIdx)) {
                   g_model.moduleData[moduleIdx].subType =

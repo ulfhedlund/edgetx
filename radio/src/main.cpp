@@ -24,6 +24,7 @@
 #include "hal/abnormal_reboot.h"
 #include "hal/usb_driver.h"
 #include "edgetx.h"
+#include "lua/lua_states.h"
 
 #if defined(LIBOPENUI)
 #include "libopenui.h"
@@ -547,7 +548,13 @@ void perMain()
 
 #if defined(RTC_BACKUP_RAM)
   if (UNEXPECTED_SHUTDOWN()) {
+#if defined(COLORLCD)
     drawFatalErrorScreen(STR_EMERGENCY_MODE);
+#else
+    lcdClear();
+    menuMainView(0);
+    lcdRefresh();
+#endif
     return;
   }
 #endif

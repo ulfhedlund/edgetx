@@ -225,7 +225,7 @@
 #define TR_VTRAINER_BLUETOOTH           TR("Lärare/BT","Lärare/Bluetooth"),TR("Elev/BT","Elev/Bluetooth")
 #define TR_VTRAINER_MULTI               "Lärare/Multi"
 
-#define TR_VFAILSAFE                    "Ej inställt","Lås senaste",TR("Eget","Egna värden"),"Inga pulser","Mottagare"
+#define TR_VFAILSAFE                    "Ej inställt","Håll senaste",TR("Eget","Egna värden"),"Inga pulser","Mottagare"
 #define TR_VSENSORTYPES                 "Anpassad","Beräknad"
 #define TR_VFORMULAS                    "Addera",TR("Medel","Medelvärde"),TR("Min","Minimum"),TR("Max","Maximum"),TR("Multipl.","Multiplicera"),"Summera","Cell",TR("Förbrukn.","Förbrukning"),"Avstånd"
 #define TR_VPREC                        "0.--","0.0","0.00"
@@ -300,7 +300,7 @@
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Brytare"
 #define TR_FUNCTION_SWITCHES            "Anpassningsbara brytare"
-#define TR_FS_COLOR_LIST               "White","Red","Green","Yellow","Orange","Blue","Pink","Off","Custom"
+#define TR_FS_COLOR_LIST                "Vit","Röd","Grön","Gul","Orange","Blå","Rosa","Av","Anpassad"
 #define TR_GROUP                        "Grupp"
 #define TR_GROUP_ALWAYS_ON              "Alltid på"
 #define TR_GROUPS                       "Always on groups"
